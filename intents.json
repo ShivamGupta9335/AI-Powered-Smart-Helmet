@@ -1,0 +1,42 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": ["Hi", "Hello", "Hey"],
+      "responses": ["Hello! How can I help you with safety today?"]
+    },
+    {
+      "tag": "gas_alert",
+      "patterns": ["gas detected", "gas leak", "danger gas"],
+      "responses": [
+        "⚠️ Gas detected! Move to fresh air immediately and inform supervisor."
+      ]
+    },
+    {
+      "tag": "high_temperature",
+      "patterns": ["high temperature", "too hot", "heat warning"],
+      "responses": [
+        "🔥 High temperature detected! Take rest and hydrate yourself."
+      ]
+    },
+    {
+      "tag": "helmet_alert",
+      "patterns": ["helmet buzzing", "why buzzer", "alert sound"],
+      "responses": [
+        "🔔 Your helmet detected danger (gas/impact/heat). Please check surroundings."
+      ]
+    },
+    {
+      "tag": "emergency_fall",
+      "patterns": ["worker fell", "fall detected", "accident"],
+      "responses": [
+        "🚨 Emergency! Worker fall detected. Sending alert and location to supervisor."
+      ]
+    },
+    {
+      "tag": "goodbye",
+      "patterns": ["bye", "exit"],
+      "responses": ["Stay safe! 👷"]
+    }
+  ]
+}

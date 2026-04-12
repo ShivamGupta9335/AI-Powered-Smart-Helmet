@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url("Screenshot 2026-03-29 185534.png") no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+}
+
+/* Main Chat Container */
+.chat-container {
+    width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    background: rgba(30, 30, 30, 0.9);
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+    color: white;
+}
+
+/* Heading */
+.chat-container h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* Chat Box */
+#chatbox {
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #111;
+    border-radius: 8px;
+}
+
+/* Scrollbar Styling */
+#chatbox::-webkit-scrollbar {
+    width: 6px;
+}
+#chatbox::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 10px;
+}
+
+/* Input Field */
+input {
+    width: 68%;
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+}
+
+/* Send Button */
+button {
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+/* 🔴 Emergency Button */
+#emergencyBtn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 15px;
+    background: linear-gradient(45deg, red, darkred);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    animation: pulse 1.5s infinite;
+}
+
+/* Hover Effect */
+#emergencyBtn:hover {
+    background: darkred;
+}
+
+/* 🔥 Pulse Animation (Emergency Feel) */
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 5px red;
+    }
+    50% {
+        box-shadow: 0 0 20px red;
+    }
+    100% {
+        box-shadow: 0 0 5px red;
+    }
+}
+
+/* Chat Messages */
+#chatbox p {
+    margin: 8px 0;
+}
+
+/* User Message */
+#chatbox p b:first-child {
+    color: #00ffcc;
+}
+
+/* Bot Message */
+#chatbox p b:last-child {
+    color: #ffcc00;
+}
