@@ -1,11 +1,12 @@
+require("dotenv").config(); // 👈 Load env variables
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const twilio = require("twilio");
 
 const app = express();
-const PORT = 3000;
-
+const PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -14,10 +15,13 @@ const data = JSON.parse(fs.readFileSync("intents.json", "utf-8"));
 
 let users = [];
 
-
 let latestLocation = { lat: null, lon: null };
 
-const client = new twilio("ACcb04a96c0131a4c0012c2930d9552088", "5acff2f003d7d4e98b218be3eeab85d3");
+// 🔐 Use env variables instead of hardcoding
+const client = new twilio(
+    process.env.TWILIO_ACCOUNT_SID,
+    process.env.TWILIO_AUTH_TOKEN
+);
 
 function getResponse(userInput) {
     userInput = userInput.toLowerCase();
@@ -32,7 +36,6 @@ function getResponse(userInput) {
 
     return "I didn't understand. Please stay safe.";
 }
-
 
 function checkEmergency() {
     const alerts = [
@@ -68,15 +71,13 @@ app.post("/emergency", (req, res) => {
         console.log(`🚨 Alert sent to ${user}`);
     });
 
-    // Send SMS with GPS
     sendMobileAlert(locationLink);
 
     res.json({ status: "Emergency sent with GPS location" });
 });
 
-// ================= 📍 LIVE TRACKING =================
+// 📍 TRACK
 app.post("/track", (req, res) => {
-
     let lat = req.body.lat;
     let lon = req.body.lon;
 
@@ -88,29 +89,28 @@ app.post("/track", (req, res) => {
     res.sendStatus(200);
 });
 
-// ================= 📍 SEND LOCATION TO MAP =================
+// 📍 GET LOCATION
 app.get("/location", (req, res) => {
     res.json(latestLocation);
 });
 
-// ================= 📱 MOBILE ALERT =================
+// 📱 SMS ALERT
 function sendMobileAlert(locationLink) {
     client.messages.create({
         body: `🚨 EMERGENCY! Worker needs help immediately!
 📍 Location: ${locationLink}`,
-        from: "+12602365507",
-        to: "+919335901977"
+        from: process.env.TWILIO_PHONE,
+        to: process.env.MY_PHONE
     })
     .then(msg => console.log("📱 SMS sent:", msg.sid))
     .catch(err => console.log(err));
 }
 
-// ================= CHAT ROUTE =================
+// 💬 CHAT
 app.post("/get", (req, res) => {
     let userMsg = req.body.msg;
 
     let response = getResponse(userMsg);
-
     let sensor = checkEmergency();
 
     if (sensor !== "All safe") {
@@ -120,7 +120,7 @@ app.post("/get", (req, res) => {
     res.json({ reply: response });
 });
 
-// ================= START SERVER =================
+// 🚀 START
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
