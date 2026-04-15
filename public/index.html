@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Safety Chatbot</title>
+    <title>Smart Helmet AI</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="chat-container">
-    <h2>👷 Smart Helmet Safety Chatbot</h2>
+    <h2>👷 Smart Helmet AI Assistant</h2>
 
     <div id="chatbox"></div>
 
-    <input type="text" id="userInput" placeholder="Type your message...">
-    <button onclick="sendMessage()">Send</button>
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKey(event)">
+        <button onclick="sendMessage()">Send</button>
+    </div>
 
-    <!-- 🔴 Emergency Button -->
+    <!-- 🌡️ Safety Button -->
+    <button class="safe-btn" onclick="checkSafety()">🌡️ Check Safety</button>
+
+    <!-- 🚨 Emergency Button -->
     <button id="emergencyBtn" onclick="sendEmergency()">🚨 EMERGENCY</button>
 </div>
 
@@ -22,21 +27,55 @@
 
 // ================= CHAT =================
 function sendMessage() {
-    let input = document.getElementById("userInput").value;
+    let input = document.getElementById("userInput").value.trim();
+    if (input === "") return;
+
+    let chatbox = document.getElementById("chatbox");
+
+    // show user message instantly
+    chatbox.innerHTML += `<p class="user">You: ${input}</p>`;
 
     fetch("/get", {
         method: "POST",
         headers: {"Content-Type": "application/x-www-form-urlencoded"},
-        body: "msg=" + input
+        body: "msg=" + encodeURIComponent(input)
     })
     .then(res => res.json())
     .then(data => {
-        let chatbox = document.getElementById("chatbox");
-        chatbox.innerHTML += "<p><b>You:</b> " + input + "</p>";
-        chatbox.innerHTML += "<p><b>Bot:</b> " + data.reply + "</p>";
+        chatbox.innerHTML += `<p class="bot">Bot: ${data.reply}</p>`;
+        speak(data.reply); // 🔊 voice
+        chatbox.scrollTop = chatbox.scrollHeight;
     });
 
     document.getElementById("userInput").value = "";
+}
+
+// Enter key support
+function handleKey(e) {
+    if (e.key === "Enter") sendMessage();
+}
+
+// ================= 🌡️ SAFETY =================
+function checkSafety() {
+    fetch("/safety")
+    .then(res => res.json())
+    .then(data => {
+        let chatbox = document.getElementById("chatbox");
+
+        chatbox.innerHTML += `<p class="bot">🌡️ Temp: ${data.temp}°C</p>`;
+        chatbox.innerHTML += `<p class="bot">${data.status}</p>`;
+
+        speak(data.voice);
+        chatbox.scrollTop = chatbox.scrollHeight;
+    });
+}
+
+// ================= 🔊 VOICE =================
+function speak(text) {
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.rate = 1;
+    speech.pitch = 1;
+    window.speechSynthesis.speak(speech);
 }
 
 // ================= 🚨 EMERGENCY WITH GPS =================
@@ -52,12 +91,15 @@ function sendEmergency() {
             fetch("/emergency", {
                 method: "POST",
                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: "lat=" + lat + "&lon=" + lon
+                body: `lat=${lat}&lon=${lon}`
             })
             .then(res => res.json())
             .then(data => {
                 let chatbox = document.getElementById("chatbox");
-                chatbox.innerHTML += "<p style='color:red;'><b>🚨 EMERGENCY WITH LOCATION SENT!</b></p>";
+
+                chatbox.innerHTML += `<p class="alert">🚨 EMERGENCY SENT WITH LOCATION!</p>`;
+                speak("Emergency alert sent");
+                chatbox.scrollTop = chatbox.scrollHeight;
             });
 
         }, function() {
@@ -84,17 +126,17 @@ function startLiveTracking() {
                 fetch("/track", {
                     method: "POST",
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                    body: "lat=" + lat + "&lon=" + lon
+                    body: `lat=${lat}&lon=${lon}`
                 });
 
             });
 
-        }, 5000); // every 5 sec
+        }, 5000);
 
     }
 }
 
-// Start tracking when page loads
+// Start tracking
 window.onload = function() {
     startLiveTracking();
 };

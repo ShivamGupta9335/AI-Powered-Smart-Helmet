@@ -16,5 +16,14 @@
     "dotenv": "^17.4.1",
     "express": "^5.2.1",
     "twilio": "^5.13.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShivamGupta9335/AI-Powered-Smart-Helmet.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ShivamGupta9335/AI-Powered-Smart-Helmet/issues"
+  },
+  "homepage": "https://github.com/ShivamGupta9335/AI-Powered-Smart-Helmet#readme"
 }

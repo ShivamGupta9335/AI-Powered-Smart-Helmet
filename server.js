@@ -1,4 +1,4 @@
-require("dotenv").config(); // 👈 Load env variables
+require("dotenv").config();
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -8,21 +8,34 @@ const twilio = require("twilio");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ================= MIDDLEWARE =================
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+// ================= DEBUG ENV =================
+console.log("🔐 Twilio SID:", process.env.TWILIO_ACCOUNT_SID ? "Loaded" : "Missing");
+console.log("🔐 Twilio TOKEN:", process.env.TWILIO_AUTH_TOKEN ? "Loaded" : "Missing");
+
+// ================= LOAD INTENTS =================
 const data = JSON.parse(fs.readFileSync("intents.json", "utf-8"));
 
+// ================= GLOBAL DATA =================
 let users = [];
-
 let latestLocation = { lat: null, lon: null };
 
-// 🔐 Use env variables instead of hardcoding
-const client = new twilio(
-    process.env.TWILIO_ACCOUNT_SID,
-    process.env.TWILIO_AUTH_TOKEN
-);
+// ================= TWILIO CLIENT =================
+let client = null;
 
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    client = new twilio(
+        process.env.TWILIO_ACCOUNT_SID,
+        process.env.TWILIO_AUTH_TOKEN
+    );
+} else {
+    console.log("⚠️ Twilio not configured properly");
+}
+
+// ================= CHATBOT =================
 function getResponse(userInput) {
     userInput = userInput.toLowerCase();
 
@@ -33,53 +46,64 @@ function getResponse(userInput) {
             }
         }
     }
-
     return "I didn't understand. Please stay safe.";
 }
 
-function checkEmergency() {
-    const alerts = [
-        "All safe",
-        "Gas detected",
-        "High temperature",
-        "Worker fall detected"
-    ];
-    return alerts[Math.floor(Math.random() * alerts.length)];
+// ================= SAFETY CHECK =================
+function getSafetyStatus() {
+    let temp = Math.floor(Math.random() * 50);
+
+    let status, voice;
+
+    if (temp < 35) {
+        status = "✅ Everything is safe";
+        voice = "Everything is safe";
+    } else if (temp < 45) {
+        status = "⚠️ Warning: High temperature";
+        voice = "Warning. Temperature is high";
+    } else {
+        status = "🚨 Danger! Very high temperature";
+        voice = "Danger. Temperature is very high. Please take action";
+    }
+
+    return { temp, status, voice };
 }
 
+// ================= REGISTER USERS =================
 app.get("/register", (req, res) => {
     let id = "helmet_" + (users.length + 1);
     users.push(id);
-    console.log(id + " connected");
+    console.log("🪖", id, "connected");
     res.send(id + " connected");
 });
 
+// ================= EMERGENCY =================
 app.post("/emergency", (req, res) => {
 
-    console.log("🚨 EMERGENCY BUTTON PRESSED!");
+    let { lat, lon } = req.body;
 
-    let lat = req.body.lat;
-    let lon = req.body.lon;
+    let locationLink = lat && lon
+        ? `https://www.google.com/maps?q=${lat},${lon}`
+        : "Location not available";
 
-    let locationLink = "Location not available";
+    console.log("🚨 EMERGENCY TRIGGERED!");
 
-    if (lat && lon) {
-        locationLink = `https://www.google.com/maps?q=${lat},${lon}`;
-    }
-
+    // Simulate broadcast
     users.forEach(user => {
-        console.log(`🚨 Alert sent to ${user}`);
+        console.log(`📢 Alert sent to ${user}`);
     });
 
+    // Send SMS
     sendMobileAlert(locationLink);
 
-    res.json({ status: "Emergency sent with GPS location" });
+    res.json({
+        msg: "🚨 Emergency alert sent with location!"
+    });
 });
 
-// 📍 TRACK
+// ================= TRACK LOCATION =================
 app.post("/track", (req, res) => {
-    let lat = req.body.lat;
-    let lon = req.body.lon;
+    let { lat, lon } = req.body;
 
     if (lat && lon) {
         latestLocation = { lat, lon };
@@ -89,38 +113,44 @@ app.post("/track", (req, res) => {
     res.sendStatus(200);
 });
 
-// 📍 GET LOCATION
+// ================= GET LOCATION =================
 app.get("/location", (req, res) => {
     res.json(latestLocation);
 });
 
-// 📱 SMS ALERT
+// ================= SMS ALERT =================
 function sendMobileAlert(locationLink) {
+
+    if (!client) {
+        console.log("❌ Twilio client not initialized");
+        return;
+    }
+
     client.messages.create({
-        body: `🚨 EMERGENCY! Worker needs help immediately!
-📍 Location: ${locationLink}`,
+        body: `🚨 EMERGENCY! Worker needs help!\n📍 ${locationLink}`,
         from: process.env.TWILIO_PHONE,
         to: process.env.MY_PHONE
     })
-    .then(msg => console.log("📱 SMS sent:", msg.sid))
-    .catch(err => console.log(err));
+    .then(msg => console.log("✅ SMS sent:", msg.sid))
+    .catch(err => console.log("❌ Twilio Error:", err.message));
 }
 
-// 💬 CHAT
+// ================= CHAT =================
 app.post("/get", (req, res) => {
     let userMsg = req.body.msg;
 
     let response = getResponse(userMsg);
-    let sensor = checkEmergency();
-
-    if (sensor !== "All safe") {
-        response += `<br><br>🚨 SYSTEM ALERT: ${sensor}!`;
-    }
 
     res.json({ reply: response });
 });
 
-// 🚀 START
+// ================= SAFETY API =================
+app.get("/safety", (req, res) => {
+    let result = getSafetyStatus();
+    res.json(result);
+});
+
+// ================= START SERVER =================
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

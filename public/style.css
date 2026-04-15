@@ -1,18 +1,28 @@
 body {
-    font-family: Arial, sans-serif;
-    background: url("Screenshot 2026-03-29 185534.png") no-repeat center center fixed;
-    background-size: cover;
     margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+
+    /* ✅ FIXED background issue (rename image to bg.png) */
+    background: url("Screenshot\ 2026-03-29\ 185534.png") no-repeat center center fixed;
+    background-size: cover;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
-/* Main Chat Container */
+/* 🌟 Glass Container */
 .chat-container {
-    width: 400px;
-    margin: 50px auto;
+    width: 420px;
     padding: 20px;
-    background: rgba(30, 30, 30, 0.9);
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+
+    border-radius: 15px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+
     color: white;
 }
 
@@ -20,96 +30,117 @@ body {
 .chat-container h2 {
     text-align: center;
     margin-bottom: 15px;
+    letter-spacing: 1px;
 }
 
 /* Chat Box */
 #chatbox {
     height: 300px;
     overflow-y: auto;
-    border: 1px solid #444;
+
     padding: 10px;
-    margin-bottom: 10px;
-    background: #111;
-    border-radius: 8px;
+    border-radius: 10px;
+
+    background: rgba(0,0,0,0.4);
 }
 
-/* Scrollbar Styling */
+/* Scrollbar */
 #chatbox::-webkit-scrollbar {
-    width: 6px;
+    width: 5px;
 }
 #chatbox::-webkit-scrollbar-thumb {
-    background: #555;
+    background: #888;
     border-radius: 10px;
 }
 
-/* Input Field */
+/* 🧠 Chat Messages */
+#chatbox p {
+    padding: 8px 12px;
+    margin: 6px 0;
+    border-radius: 10px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+/* 👤 User message */
+.user {
+    background: #00c6ff;
+    color: black;
+    margin-left: auto;
+    text-align: right;
+}
+
+/* 🤖 Bot message */
+.bot {
+    background: #222;
+    color: #ffcc00;
+}
+
+/* 🚨 Alert message */
+.alert {
+    background: red;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Input Area */
+.input-area {
+    display: flex;
+    margin-top: 10px;
+}
+
+/* Input */
 input {
-    width: 68%;
+    flex: 1;
     padding: 10px;
-    border-radius: 6px;
+    border-radius: 8px;
     border: none;
     outline: none;
 }
 
-/* Send Button */
+/* Buttons */
 button {
     padding: 10px;
-    background: #007bff;
-    color: white;
+    margin-left: 5px;
+
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
+
+    background: linear-gradient(45deg, #007bff, #00c6ff);
+    color: white;
+
     cursor: pointer;
     transition: 0.3s;
 }
 
 button:hover {
-    background: #0056b3;
+    transform: scale(1.05);
+}
+
+/* 🌡️ Safety Button */
+.safe-btn {
+    width: 100%;
+    margin-top: 10px;
+    background: linear-gradient(45deg, green, limegreen);
 }
 
 /* 🔴 Emergency Button */
 #emergencyBtn {
     width: 100%;
-    margin-top: 12px;
+    margin-top: 10px;
     padding: 15px;
+
     background: linear-gradient(45deg, red, darkred);
-    color: white;
     font-size: 18px;
     font-weight: bold;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
+
     animation: pulse 1.5s infinite;
 }
 
-/* Hover Effect */
-#emergencyBtn:hover {
-    background: darkred;
-}
-
-/* 🔥 Pulse Animation (Emergency Feel) */
+/* Pulse Animation */
 @keyframes pulse {
-    0% {
-        box-shadow: 0 0 5px red;
-    }
-    50% {
-        box-shadow: 0 0 20px red;
-    }
-    100% {
-        box-shadow: 0 0 5px red;
-    }
-}
-
-/* Chat Messages */
-#chatbox p {
-    margin: 8px 0;
-}
-
-/* User Message */
-#chatbox p b:first-child {
-    color: #00ffcc;
-}
-
-/* Bot Message */
-#chatbox p b:last-child {
-    color: #ffcc00;
+    0% { box-shadow: 0 0 5px red; }
+    50% { box-shadow: 0 0 25px red; }
+    100% { box-shadow: 0 0 5px red; }
 }
